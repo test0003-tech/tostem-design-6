@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const BASE_URL = "https://www.tostemindia.com/";
 
@@ -187,28 +188,34 @@ export default function Header() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSubMenu, setMobileSubMenu] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
-  const handleMouseEnter = (label: string) => {
-    setOpenMenu(label);
-  };
-
-  const handleMouseLeave = () => {
-    setOpenMenu(null);
-  };
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm">
+    <header
+      className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md transition-shadow duration-300 ${
+        scrolled ? "shadow-lg" : "shadow-sm"
+      }`}
+    >
       {/* Top bar */}
-      <div className="bg-black text-white">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-9 text-xs">
-          <a href="contact.html" className="hover:underline">
+      <div className="bg-neutral-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-9 text-[11px] tracking-wide uppercase">
+          <a
+            href={`${BASE_URL}contact.html`}
+            className="hover:text-gray-300 transition-colors font-medium"
+          >
             TOSTEM Offices
           </a>
           <a
             href="https://studio.tostemindia.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:underline font-medium"
+            className="hover:text-gray-300 transition-colors font-medium"
           >
             Find a TOSTEM Studio
           </a>
@@ -216,156 +223,198 @@ export default function Header() {
       </div>
 
       {/* Main nav */}
-      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[68px]">
         {/* Logo */}
-        <a href="/" className="flex-shrink-0">
+        <a href="/" className="flex-shrink-0 group">
           <img
             src="https://cdn-ildpppi.nitrocdn.com/xjROyyheOXReIMzlTkTVBhxlcelzUnWY/assets/images/optimized/rev-c76f7e6/www.tostemindia.com/wp-content/uploads/2024/07/logo-tostemindia.png"
             alt="Tostem India Logo"
-            className="h-8 w-auto"
+            className="h-9 w-auto transition-transform group-hover:scale-105"
           />
         </a>
 
         {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-0.5">
           {navItems.map((item) => (
             <div
               key={item.label}
               className="relative"
-              onMouseEnter={() => handleMouseEnter(item.label)}
-              onMouseLeave={handleMouseLeave}
+              onMouseEnter={() => setOpenMenu(item.label)}
+              onMouseLeave={() => setOpenMenu(null)}
             >
-              <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-800 hover:text-black transition-colors">
+              <button
+                className={`flex items-center gap-1 px-3.5 py-2 text-[13px] font-medium tracking-wide transition-colors ${
+                  openMenu === item.label
+                    ? "text-black"
+                    : "text-gray-600 hover:text-black"
+                }`}
+              >
                 {item.label}
-                <ChevronDown className="h-3.5 w-3.5" />
+                <ChevronDown
+                  className={`h-3 w-3 transition-transform duration-200 ${
+                    openMenu === item.label ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
-              {openMenu === item.label && item.groups && (
-                <div className="absolute top-full left-0 bg-white shadow-xl border-t-2 border-black rounded-b-md min-w-[220px] py-2 z-50">
-                  {item.groups.map((group, gi) => (
-                    <div key={gi}>
-                      {group.groupLabel && (
-                        <div className="px-4 py-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
-                          {group.groupLabel}
-                        </div>
-                      )}
-                      {group.items.map((sub) => (
-                        <a
-                          key={sub.label}
-                          href={sub.href.startsWith("http") ? sub.href : `${BASE_URL}${sub.href}`}
-                          target={sub.href.startsWith("http") ? "_blank" : undefined}
-                          rel={sub.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
-                        >
-                          {sub.label}
-                        </a>
-                      ))}
-                      {gi < item.groups!.length - 1 && (
-                        <div className="my-1 border-t border-gray-100" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <AnimatePresence>
+                {openMenu === item.label && item.groups && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="absolute top-full left-0 bg-white shadow-2xl border border-gray-100 rounded-b-xl min-w-[240px] py-3 z-50 overflow-hidden"
+                  >
+                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-neutral-900" />
+                    {item.groups.map((group, gi) => (
+                      <div key={gi}>
+                        {group.groupLabel && (
+                          <div className="px-5 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] border-b border-gray-50">
+                            {group.groupLabel}
+                          </div>
+                        )}
+                        {group.items.map((sub) => (
+                          <a
+                            key={sub.label}
+                            href={
+                              sub.href.startsWith("http")
+                                ? sub.href
+                                : `${BASE_URL}${sub.href}`
+                            }
+                            target={
+                              sub.href.startsWith("http") ? "_blank" : undefined
+                            }
+                            rel={
+                              sub.href.startsWith("http")
+                                ? "noopener noreferrer"
+                                : undefined
+                            }
+                            className="block px-5 py-2 text-[13px] text-gray-600 hover:text-black hover:bg-gray-50 hover:pl-6 transition-all duration-200"
+                          >
+                            {sub.label}
+                          </a>
+                        ))}
+                        {gi < item.groups!.length - 1 && (
+                          <div className="my-1 mx-4 border-t border-gray-100" />
+                        )}
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
-
-          <a
-            href={`${BASE_URL}aluminium-doors-design-prices.html`}
-            className="flex items-center px-3 py-2 text-sm font-medium text-gray-800 hover:text-black transition-colors"
-          >
-            Aluminium Doors
-          </a>
-          <a
-            href={`${BASE_URL}aluminium-windows-design-prices.html`}
-            className="flex items-center px-3 py-2 text-sm font-medium text-gray-800 hover:text-black transition-colors"
-          >
-            Aluminium Windows
-          </a>
         </nav>
 
         {/* CTA + Phone */}
-        <div className="hidden lg:flex items-center gap-3">
-          <a href="tel:18001036855" className="flex items-center gap-1.5 text-sm font-medium text-gray-800 hover:text-black">
-            <Phone className="h-4 w-4" />
-            18001036855
+        <div className="hidden lg:flex items-center gap-4">
+          <a
+            href="tel:18001036855"
+            className="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 hover:text-black transition-colors"
+          >
+            <Phone className="h-3.5 w-3.5" />
+            <span className="tracking-wide">18001036855</span>
           </a>
+          <div className="w-px h-5 bg-gray-200" />
           <Button
             asChild
-            className="bg-black hover:bg-gray-800 text-white text-sm px-5"
+            className="bg-neutral-900 hover:bg-neutral-800 text-white text-[13px] font-semibold tracking-wide px-6 rounded-none h-9 transition-colors"
           >
-            <a href={`${BASE_URL}get-quotation/`}>Get a Quote</a>
+            <a href={`${BASE_URL}get-quotation/`}>GET A QUOTE</a>
           </Button>
         </div>
 
         {/* Mobile menu */}
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild className="lg:hidden">
-            <Button variant="ghost" size="icon">
-              <Menu className="h-6 w-6" />
+            <Button variant="ghost" size="icon" className="hover:bg-gray-50">
+              <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[320px] p-0">
-            <div className="flex items-center justify-between p-4 border-b">
+          <SheetContent side="left" className="w-[320px] p-0 bg-white">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <img
                 src="https://cdn-ildpppi.nitrocdn.com/xjROyyheOXReIMzlTkTVBhxlcelzUnWY/assets/images/optimized/rev-c76f7e6/www.tostemindia.com/wp-content/uploads/2024/07/logo-tostemindia.png"
                 alt="Tostem India Logo"
                 className="h-6 w-auto"
               />
-              <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
-                <X className="h-5 w-5" />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMobileOpen(false)}
+                className="hover:bg-gray-50"
+              >
+                <X className="h-4 w-4" />
               </Button>
             </div>
-            <div className="overflow-y-auto max-h-[calc(100vh-64px)]">
+            <div className="overflow-y-auto max-h-[calc(100vh-64px)] custom-scrollbar">
               {navItems.map((item) => (
-                <div key={item.label} className="border-b border-gray-100">
+                <div key={item.label} className="border-b border-gray-50">
                   <button
                     onClick={() =>
-                      setMobileSubMenu(mobileSubMenu === item.label ? null : item.label)
+                      setMobileSubMenu(
+                        mobileSubMenu === item.label ? null : item.label
+                      )
                     }
-                    className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-800"
+                    className="flex items-center justify-between w-full px-5 py-3.5 text-sm font-medium text-gray-800 hover:bg-gray-50 transition-colors"
                   >
                     {item.label}
                     <ChevronRight
-                      className={`h-4 w-4 transition-transform ${
+                      className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
                         mobileSubMenu === item.label ? "rotate-90" : ""
                       }`}
                     />
                   </button>
-                  {mobileSubMenu === item.label && item.groups && (
-                    <div className="bg-gray-50">
-                      {item.groups.map((group, gi) => (
-                        <div key={gi}>
-                          {group.groupLabel && (
-                            <div className="px-6 py-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                              {group.groupLabel}
-                            </div>
-                          )}
-                          {group.items.map((sub) => (
-                            <a
-                              key={sub.label}
-                              href={sub.href.startsWith("http") ? sub.href : `${BASE_URL}${sub.href}`}
-                              className="block px-6 py-2 text-sm text-gray-600 hover:text-black"
-                              onClick={() => setMobileOpen(false)}
-                            >
-                              {sub.label}
-                            </a>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <AnimatePresence>
+                    {mobileSubMenu === item.label && item.groups && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden bg-gray-50/80"
+                      >
+                        {item.groups.map((group, gi) => (
+                          <div key={gi}>
+                            {group.groupLabel && (
+                              <div className="px-7 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">
+                                {group.groupLabel}
+                              </div>
+                            )}
+                            {group.items.map((sub) => (
+                              <a
+                                key={sub.label}
+                                href={
+                                  sub.href.startsWith("http")
+                                    ? sub.href
+                                    : `${BASE_URL}${sub.href}`
+                                }
+                                className="block px-7 py-2.5 text-[13px] text-gray-500 hover:text-black transition-colors"
+                                onClick={() => setMobileOpen(false)}
+                              >
+                                {sub.label}
+                              </a>
+                            ))}
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
-              <div className="p-4 space-y-3">
+              <div className="p-5 space-y-3 border-t border-gray-100">
                 <a
                   href="tel:18001036855"
-                  className="flex items-center gap-2 text-sm font-medium"
+                  className="flex items-center gap-2 text-sm font-medium text-gray-700"
                 >
                   <Phone className="h-4 w-4" /> 18001036855
                 </a>
-                <Button asChild className="w-full bg-black hover:bg-gray-800 text-white">
-                  <a href={`${BASE_URL}get-quotation/`}>Get a Quote</a>
+                <Button
+                  asChild
+                  className="w-full bg-neutral-900 hover:bg-neutral-800 text-white text-sm font-semibold tracking-wide rounded-none"
+                >
+                  <a href={`${BASE_URL}get-quotation/`}>GET A QUOTE</a>
                 </Button>
               </div>
             </div>

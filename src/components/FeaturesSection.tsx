@@ -3,6 +3,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Award, Shield, Cog, Star } from "lucide-react";
+import { motion } from "framer-motion";
 
 const BASE_URL = "https://www.tostemindia.com/";
 
@@ -39,42 +40,60 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="py-16 md:py-24 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-4">
-          What Makes Tostem a Leading Brand
-        </h2>
-        <p className="text-gray-600 text-center max-w-2xl mx-auto mb-12">
-          Tostem products are developed to withstand the harshest weather
-          conditions, setting new quality benchmarks and yardsticks in the
-          industry.
-        </p>
+    <section className="py-20 md:py-32 bg-stone-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <div className="w-10 h-[2px] bg-neutral-900 mx-auto mb-6" />
+          <h2 className="text-3xl md:text-[2.5rem] font-bold text-neutral-900 mb-5 tracking-tight">
+            What Makes Tostem a Leading Brand
+          </h2>
+          <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed">
+            Tostem products are developed to withstand the harshest weather
+            conditions, setting new quality benchmarks and yardsticks in the
+            industry.
+          </p>
+        </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feat) => {
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {features.map((feat, i) => {
             const Icon = feat.icon;
             return (
-              <div
+              <motion.div
                 key={feat.title}
-                className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow text-center group"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-500 text-center group border border-gray-100/50 hover:border-gray-200"
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gray-900 text-white mb-5 group-hover:bg-black transition-colors">
-                  <Icon className="h-6 w-6" />
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-neutral-900 text-white mb-6 group-hover:scale-110 transition-transform duration-500">
+                  <Icon className="h-7 w-7" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                <h3 className="text-lg font-bold text-neutral-900 mb-3 tracking-tight">
                   {feat.title}
                 </h3>
-                <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                <p className="text-sm text-gray-500 leading-relaxed mb-5">
                   {feat.description}
                 </p>
                 <Button
                   asChild
                   variant="link"
-                  className="text-sm font-medium text-gray-900 p-0 h-auto"
+                  className="text-[12px] font-semibold tracking-wider uppercase text-neutral-900 p-0 h-auto hover:text-black group/link"
                 >
-                  <a href={`${BASE_URL}${feat.href}`}>Know More →</a>
+                  <a href={`${BASE_URL}${feat.href}`}>
+                    Know More{" "}
+                    <span className="inline-block transition-transform group-hover/link:translate-x-1">
+                      →
+                    </span>
+                  </a>
                 </Button>
-              </div>
+              </motion.div>
             );
           })}
         </div>

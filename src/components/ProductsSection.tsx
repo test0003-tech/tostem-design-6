@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
 
 const BASE_URL = "https://www.tostemindia.com/";
 
@@ -14,7 +15,6 @@ interface ProductTab {
   image: string;
   imageAlt: string;
   href: string;
-  badge?: string;
 }
 
 const productTabs: ProductTab[] = [
@@ -90,16 +90,29 @@ export default function ProductsSection() {
   const [activeTab, setActiveTab] = useState("aluminium-doors");
 
   return (
-    <section className="py-16 md:py-24 bg-white" id="products">
-      <div className="max-w-7xl mx-auto px-4">
+    <section className="py-20 md:py-32 bg-white" id="products">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-14"
+        >
+          <div className="w-10 h-[2px] bg-neutral-900 mx-auto mb-6" />
+          <h2 className="text-3xl md:text-[2.5rem] font-bold text-neutral-900 tracking-tight">
+            Our Products
+          </h2>
+        </motion.div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           {/* Tab Navigation */}
-          <TabsList className="flex flex-wrap justify-center gap-2 bg-transparent h-auto p-0 mb-12">
+          <TabsList className="flex flex-wrap justify-center gap-2 bg-transparent h-auto p-0 mb-14">
             {productTabs.map((tab) => (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
-                className="data-[state=active]:bg-black data-[state=active]:text-white px-5 py-2.5 rounded-full text-sm font-medium border border-gray-200 data-[state=active]:border-black transition-all"
+                className="data-[state=active]:bg-neutral-900 data-[state=active]:text-white data-[state=active]:shadow-lg px-5 py-2.5 rounded-none text-[12px] font-semibold tracking-wider uppercase border border-gray-200 data-[state=active]:border-neutral-900 transition-all duration-300 hover:border-neutral-400"
               >
                 {tab.label}
               </TabsTrigger>
@@ -109,28 +122,40 @@ export default function ProductsSection() {
           {/* Tab Content */}
           {productTabs.map((tab) => (
             <TabsContent key={tab.id} value={tab.id} className="mt-0">
-              <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-                <div className="rounded-xl overflow-hidden shadow-lg">
+              <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <motion.div
+                  key={`img-${tab.id}`}
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="rounded-2xl overflow-hidden shadow-2xl group"
+                >
                   <img
                     src={tab.image}
                     alt={tab.imageAlt}
-                    className="w-full h-72 md:h-96 object-cover"
+                    className="w-full h-72 md:h-[28rem] object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                </div>
-                <div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                </motion.div>
+                <motion.div
+                  key={`text-${tab.id}`}
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="w-10 h-[2px] bg-neutral-900 mb-5" />
+                  <h3 className="text-2xl md:text-3xl font-bold text-neutral-900 mb-5 tracking-tight">
                     {tab.title}
                   </h3>
-                  <p className="text-gray-600 leading-relaxed mb-6">
+                  <p className="text-gray-500 leading-[1.8] mb-8 text-[15px]">
                     {tab.description}
                   </p>
                   <Button
                     asChild
-                    className="bg-black hover:bg-gray-800 text-white font-semibold px-8"
+                    className="bg-neutral-900 hover:bg-neutral-800 text-white font-semibold text-[12px] tracking-widest px-10 h-11 rounded-none transition-colors"
                   >
-                    <a href={`${BASE_URL}${tab.href}`}>Know More</a>
+                    <a href={`${BASE_URL}${tab.href}`}>KNOW MORE</a>
                   </Button>
-                </div>
+                </motion.div>
               </div>
             </TabsContent>
           ))}

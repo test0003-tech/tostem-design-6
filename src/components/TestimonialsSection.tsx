@@ -2,7 +2,8 @@
 
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, X } from "lucide-react";
+import { Play, Pause, Quote } from "lucide-react";
+import { motion } from "framer-motion";
 
 const BASE_URL = "https://www.tostemindia.com/";
 
@@ -11,7 +12,6 @@ interface Testimonial {
   name: string;
   location: string;
   quote: string;
-  thumbnail?: string;
 }
 
 const testimonials: Testimonial[] = [
@@ -56,21 +56,37 @@ export default function TestimonialsSection() {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-4">
-          Testimonials
-        </h2>
-        <p className="text-gray-600 text-center max-w-2xl mx-auto mb-12">
-          We have a wealth of happy customers who can&apos;t help but shout about our
-          excellent services.
-        </p>
+    <section className="py-20 md:py-32 bg-stone-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <div className="w-10 h-[2px] bg-neutral-900 mx-auto mb-6" />
+          <h2 className="text-3xl md:text-[2.5rem] font-bold text-neutral-900 mb-5 tracking-tight">
+            Testimonials
+          </h2>
+          <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed">
+            We have a wealth of happy customers who can&apos;t help but shout about our
+            excellent services.
+          </p>
+        </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
-            <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 group border border-gray-100/50"
+            >
               {/* Video area */}
-              <div className="relative aspect-video bg-gray-900">
+              <div className="relative aspect-video bg-neutral-900 overflow-hidden">
                 <video
                   ref={(el) => { videoRefs.current[i] = el; }}
                   src={t.videoSrc}
@@ -79,39 +95,54 @@ export default function TestimonialsSection() {
                   loop
                   muted
                 />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
                 <button
                   onClick={() => togglePlay(i)}
-                  className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors"
+                  className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
+                    playing === i ? "opacity-0 hover:opacity-100" : ""
+                  }`}
                   aria-label={playing === i ? "Pause video" : "Play video"}
                 >
-                  {playing === i ? (
-                    <X className="h-12 w-12 text-white" />
-                  ) : (
-                    <Play className="h-12 w-12 text-white" />
-                  )}
+                  <div className={`flex items-center justify-center rounded-full transition-all duration-300 ${
+                    playing === i
+                      ? "w-14 h-14 bg-white/20 backdrop-blur-sm"
+                      : "w-16 h-16 bg-white/15 backdrop-blur-md border border-white/20"
+                  }`}>
+                    {playing === i ? (
+                      <Pause className="h-5 w-5 text-white" />
+                    ) : (
+                      <Play className="h-6 w-6 text-white ml-0.5" />
+                    )}
+                  </div>
                 </button>
               </div>
 
               {/* Text */}
-              <div className="p-5">
-                <p className="text-gray-600 text-sm leading-relaxed mb-3 line-clamp-4">
-                  &ldquo;{t.quote}&rdquo;
+              <div className="p-6">
+                <Quote className="h-5 w-5 text-neutral-300 mb-3" />
+                <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                  {t.quote}
                 </p>
-                <p className="font-semibold text-gray-900 text-sm">
-                  - {t.name} | {t.location}
-                </p>
+                <div className="pt-4 border-t border-gray-100">
+                  <p className="font-semibold text-neutral-900 text-sm tracking-tight">
+                    {t.name}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5 tracking-wide">
+                    {t.location}
+                  </p>
+                </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
-        <div className="text-center mt-10">
+        <div className="text-center mt-12">
           <Button
             asChild
             variant="outline"
-            className="border-black text-black hover:bg-black hover:text-white px-8"
+            className="border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white font-semibold text-[12px] tracking-widest px-8 h-11 rounded-none transition-colors"
           >
-            <a href={`${BASE_URL}testimonials/`}>View All Testimonials</a>
+            <a href={`${BASE_URL}testimonials/`}>VIEW ALL TESTIMONIALS</a>
           </Button>
         </div>
       </div>
